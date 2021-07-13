@@ -3,11 +3,33 @@ This script runs the application using a development server.
 It contains the definition of routes and views for the application.
 """
 
-import pymysql, requests, json, flask, selenium ,jsonify
-from flask_marshmallow import Marshmallow
-import db_connector
-from flask import Flask
+#import pymysql, json, flask, selenium 
+from flask_marshmallow import Marshmallow 
+from db_connector import User ,  UserSchema
+from flask import Flask , jsonify , request
+from setup import db , app, ma
+from marshmallow import Schema
+import os
+
 app = Flask(__name__)
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'db.sqlite')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db.init_app(app)  
+
+class UserSchema(ma.Schema):
+  class Meta:
+    fields = ('user_id', 'user_name', 'email', 'creation_date', 'password')
+
+
+# Init schema
+user_schema = UserSchema()
+users_schema = UserSchema(many=True)
+
+
 
 #@app.route('/')
 #def hello():
@@ -77,13 +99,13 @@ def delete_user(self):
 #create a user
 @app.route('/users', methods=['POST'])
 def add_user():
-  user_id = request.json['user_id']
+  user_id = request.json['user_id'] 
   user_name = request.json['user_name']
   email = request.json['email']
   password = request.json['password']
-  creation_date = request.json['creation_date']
+  #creation_date = request.json['creation_date']
 
-  new_user = User(user_id, user_name, email , creation_date , password)
+  new_user = User(user_id, user_name, email  , password) #creation_date
 
   db.session.add(new_user)
   db.session.commit()
@@ -95,8 +117,8 @@ def add_user():
 @app.route('/users', methods=['GET'])
 def get_users():
   all_users = User.query.all()
-  result = user_schema.dump(all_users)
-  return jsonify(result.data)
+  result = user_schema.dump(all_users, many=True )
+  return jsonify(result)
 
 # Get Single user
 @app.route('/users/<USER_ID>', methods=['GET'])
@@ -140,7 +162,5 @@ def delete_user(user_id):
 
 
 
-
-
 if __name__ == '__main__':
-	app.run(debug=True)
+	app.run(debug=True, port=5000 , host='localhost')
