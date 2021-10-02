@@ -1,28 +1,37 @@
-"""d
+"""
 This script runs the application using a development server.
 It contains the definition of routes and views for the application.
 """
 
-#import pymysql, json, flask, selenium 
-from flask_marshmallow import Marshmallow 
-from db_connector import User ,  UserSchema
-from flask import Flask , jsonify , request
-from setup import db , app, ma
-from marshmallow import Schema
-import os
+from flask_marshmallow import Marshmallow
+from datetime import datetime
+from db_connector import User
+from flask import Flask, jsonify, request, json , url_for
+from setup import db, app, ma
+from marshmallow import schema
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+import time
+from webdriver_manager.chrome import ChromeDriverManager
+import os 
+import signal
+
+
+
+
 
 app = Flask(__name__)
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'db.sqlite')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'user.sqlite')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)  
 
 class UserSchema(ma.Schema):
   class Meta:
-    fields = ('user_id', 'user_name', 'email', 'creation_date', 'password')
+    fields = ('user_id', 'user_name', 'email', 'password', 'creation_date')
 
 
 # Init schema
@@ -30,113 +39,72 @@ user_schema = UserSchema()
 users_schema = UserSchema(many=True)
 
 
+#@app.route('/' , methods=['GET'])
+#def check():
+#   return "<h1> something that proggramer was say <h1>"
 
-#@app.route('/')
-#def hello():
-#    return "hello world"
-
-name_list = {}
-user_name = {}
-# Make the WSGI interface available at the top level so wfastcgi can get it.
-#wsgi_app = app.wsgi_app
-"""
-
-@app.route('/users/<USER_ID>', methods=['POST'])
-def add_user():
-    user =  '{"status":"ok", "user_added":"<user_name>"}' , 200
-    return jsonify(user)
-   
-
-    return {"user_name":"string"}
-
-@app.route('/users/<USER_ID>', methods=['GET'])
-def get_exiting_user_data(self):
-    for i in user_name:
-        if i['user_name'] == name:
-            return i
-    return {'user_name': None}
-"""
-
-@app.route('/' , methods=['GET'])
-def check():
-    return jsonify({ 'text': 'Hello World!' })
-
-    
-"""
-
-@app.route('/users' , methods=['POST'])
-def exiting_user_data():
-    #get name from user and put it in user_name
-    print("its work?")
-    user_name['name'] = 'value'
-    name = json.dumps(user_name)
-    return  'user_name: ', name
-"""
-
-"""
-@app.route('/users', methods=['GET'])
-def get_exiting_user_data():
-    response = {
-        'massage' : 'hello there , enter your name: '
-    }
-    return json(response), 200
-"""
-#@app.route('/users', methods=['GET'])
-#def get_exiting_user_data():
-    #return jsonify({'user_name' : user_name})
-
-"""
-@app.route('/users/<USER_ID>', methods=['PUT'])
-def update_user():
-    
-
-@app.route('/users/<USER_ID>', methods=['DELETE'])
-def delete_user(self):
-
-
-"""
 
 #create a user
 @app.route('/users', methods=['POST'])
 def add_user():
-  user_id = request.json['user_id'] 
-  user_name = request.json['user_name']
-  email = request.json['email']
-  password = request.json['password']
-  #creation_date = request.json['creation_date']
+  try:
+    user_id = request.json['user_id']
+    user_name = request.json['user_name']
+    email = request.json['email']
+    password = request.json['password']
+    creation_date = datetime.now()
+    
+    new_user = User(user_id, user_name, email  , password, creation_date )
+    
+    db.session.add(new_user)
+    db.session.commit()
 
-  new_user = User(user_id, user_name, email  , password) #creation_date
-
-  db.session.add(new_user)
-  db.session.commit()
-
-  return user_schema.jsonify(new_user)
+   
+    return user_schema.jsonify(new_user),200
+  except: 
+    return jsonify({'status': 'error', 'reason': 'bad request'}), 400
 
 
+#searchBox = driver.findElement(By.name("USER_ID"))
+#time .sleep(7)
+#search_box.send_keys("webdriver")
+#time.sleep(7)
+  
 # Get All Users
 @app.route('/users', methods=['GET'])
 def get_users():
-  all_users = User.query.all()
-  result = user_schema.dump(all_users, many=True )
-  return jsonify(result)
+  try:
+    all_users = User.query.all()
+    result = user_schema.dump(all_users, many=True )
+    return jsonify(result),200
+  except:
+    return jsonify({'status': 'error', 'reason': 'not found any user'}) , 500
+
 
 # Get Single user
 @app.route('/users/<USER_ID>', methods=['GET'])
-def get_user(user_id):
-  user = User.query.get(USER_ID)
-  return user_schema.jsonify(users)
+def get_user(USER_ID):
+  try:
+    user = User.query.get(USER_ID)
+    return user_schema.jsonify(user)
+  except:                       
+    return jsonify({'status': 'error', 'reason': 'no such id'}) , 500
+
 
 
 # Update a User
 @app.route('/users/<USER_ID>', methods=['PUT'])
 def update_user(USER_ID):
+  
+ try:    
   user = User.query.get(USER_ID)
 
+  
   user_id = request.json['user_id']
   user_name = request.json['user_name']
   email = request.json['email']
   password = request.json['password']
-  creation_date = request.json['creation_date']
+  creation_date = datetime.now()
 
 
   user.user_id = user_id
@@ -147,20 +115,44 @@ def update_user(USER_ID):
 
   db.session.commit()
 
-  return product_schema.jsonify(users)
+  return jsonify({'status': 'ok', 'user updated successfully': 'user:' + USER_ID})
+ except:
+  return jsonify({'status': 'error', 'reason': 'no such id'}), 500
 
 
 # Delete User
 @app.route('/users/<USER_ID>', methods=['DELETE'])
-def delete_user(user_id):
-  user = User.query.get(user_id)
-  db.session.delete(user)
-  db.session.commit()
+def delete_user(USER_ID): 
+  try:  
+    user = User.query.get(USER_ID)
+    
+    db.session.delete(user)
+    db.session.commit()
 
-  return user_schema.jsonify(users)
+    return {'status': 'ok', 'user_deleted': USER_ID}, 200
+  except:
+     return {'status': 'error', 'reason': 'no such id'} ,500
 
 
+@app.route("/users/get_user_data/<USER_ID>")
+def get_user_name(USER_ID):
+    
+    adding = User.query.get(USER_ID)
+    usering = str(adding)
+    if usering != "None":
+        return "<H1>" + usering + "</H1>"
+    else:       
+        return "<H1>" + "no such user:" + USER_ID + "</H1>" 
 
+@app.route("/stop_server")
+def stop_server():
+    os.kill(os.getpid(),signal.CTRL_C_EVENT)
+    return 'Server stoped'
+
+
+#"""Setup the test driver and create test users"""
+#self.driver = webdriver.Chrome()
+#self.driver.get(self.get_server_url())
 
 if __name__ == '__main__':
-	app.run(debug=True, port=5000 , host='localhost')
+	app.run(debug=True)
