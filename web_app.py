@@ -21,12 +21,12 @@ def get_user_name(USER_ID):
 if __name__ == '__main__':
  app.run(debug = True ,port =5001, host = 'localhost')
 
-
+"""
 
 @app.route("/stop_server")
 def stop_server():
     os.kill(os.getpid(),signal.CTRL_C_EVENT)
     return 'Server stoped'
-"""
+
 
 
