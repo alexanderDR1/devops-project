@@ -1,5 +1,5 @@
 # pulls ubuntu image
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 # installs python 
 RUN apt-get update -y && \
@@ -20,6 +20,6 @@ COPY . /Devops project
 # exposes port 5000 for our app
 EXPOSE 5000
 
-ENTRYPOINT [ "python" ]
+ENTRYPOINT [ "python3" ]
 
 #CMD [ "my_app.py" ]
