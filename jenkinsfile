@@ -5,8 +5,8 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building...'
-		sh """pip install -r requirements.txt
-		      python setup.py build"""
+		sh pip install -r requirements.txt
+		      python rest_app.py build
             }
         }
         stage('Test') {
