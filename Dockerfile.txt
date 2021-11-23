@@ -1,0 +1,19 @@
+FROM python:3.8
+
+# mounts docker file to directory
+WORKDIR /Devops project
+
+#installs python
+RUN apt-get update 
+RUN apt-get install -y python3 python3-pip
+
+#copy our appliction to working dircetory
+COPY . .
+
+#copy just the requirements.txt first to leverage Docker cache
+COPY requirements.txt /requirements.txt/
+#install requirements
+RUN pip install -r requirements.txt
+
+
+CMD ["python", "rest_app.py", "--host=0.0.0.0"]
