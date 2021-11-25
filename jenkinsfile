@@ -1,25 +1,29 @@
 pipeline {
-    agent any
-
+    agent { any { image 'python:3.8' } }
     stages {
-        stage('Build') {
+        stage('build') {
             steps {
-                echo 'Building...'
-		sh pip install -r requirements.txt
-		      python rest_app.py build
+                bat 'python -m pip install flask'
             }
         }
-        stage('Test') {
+        stage('dockerbuild') {
             steps {
-                echo 'Testing...'
-		sh """export PYTHONPATH=$WORKSPACE/src
-		      pytest tests"""
+                dir('C:/Users/MY PC/OneDrive/Documents/Devops project/Devops project') {
+                    
+                }
+                bat 'start/min docker build -t anyname/latest -f Dockerfile.txt  . '
             }
         }
-        stage('Deploy') {
+        stage('dockerrun') {
             steps {
-                echo 'Deploying...'
+                bat 'start/min docker run -p 5000:5000 anyname '
             }
         }
+
+        stage('runcflask') {
+            steps {
+               bat 'start/min python C:/Users/MY PC/OneDrive/Documents/Devops project/Devops project/rest_app.py'
+            }   
+        } 
     }
-}
+}            
