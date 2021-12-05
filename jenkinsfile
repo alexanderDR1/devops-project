@@ -11,7 +11,7 @@ pipeline {
                 bat 'start/min python C:/Users/MY PC/OneDrive/Documents/Devops project/Devops project/clean_environment'
             }
         }
-        stage('builer-image') {
+        stage('builder-image') {
             steps {
                 dir('C:/Users/MY PC/OneDrive/Documents/Devops project/Devops project'){
                 bat 'docker build -t anyname -f Dockerfile.txt .'
