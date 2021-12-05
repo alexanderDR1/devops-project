@@ -1,29 +1,43 @@
 pipeline {
-    agent { any { image 'python:3.8' } }
+    agent any
     stages {
-        stage('build') {
+        stage('python') {
             steps {
-                bat 'python -m pip install flask'
+                bat 'start/min python C:/Users/MY PC/OneDrive/Documents/Devops project/Devops project/rest_app.py'
             }
         }
-        stage('dockerbuild') {
+        stage('clean') {
             steps {
-                dir('C:/Users/MY PC/OneDrive/Documents/Devops project/Devops project') {
-                    
+                bat 'start/min python C:/Users/MY PC/OneDrive/Documents/Devops project/Devops project/clean_environment'
+            }
+        }
+        stage('builer-image') {
+            steps {
+                dir('C:/Users/MY PC/OneDrive/Documents/Devops project/Devops project'){
+                bat 'docker build -t anyname -f Dockerfile.txt .'
                 }
-                bat 'start/min docker build -t anyname/latest -f Dockerfile.txt  . '
+            }
+        }    
+        stage('push-hub'){
+            steps{
+                bat 'docker tag anyname:latest 31974651/anyname:latest '
+                bat 'docker push 31974651/anyname:latest'
             }
         }
-        stage('dockerrun') {
+        stage('compose up') {
             steps {
-                bat 'start/min docker run -p 5000:5000 anyname '
+                dir('C:/Users/MY PC/OneDrive/Documents/Devops project/Devops project'){
+                bat 'docker-compose up'
+                }
+            }    
+         }
+            stage('compose down') {
+            steps {
+                dir('C:/Users/MY PC/OneDrive/Documents/Devops project/Devops project'){
+                bat 'docker-compose down'
+                bat 'docker rmi -f anyname'
+                }
             }
         }
-
-        stage('runcflask') {
-            steps {
-               bat 'start/min python C:/Users/MY PC/OneDrive/Documents/Devops project/Devops project/rest_app.py'
-            }   
-        } 
     }
-}            
+}
