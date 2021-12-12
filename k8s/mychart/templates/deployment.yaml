@@ -1,0 +1,10 @@
+apiVersion: app/v1
+kind: Deployment
+
+spec:
+ replicas: {{ .Values.replicaCount }}
+ containers:
+   - name: {{ .Chart.name }} 
+   image: {{ .Values.image.repository }}
+   port:
+   - containerPort: 5000
