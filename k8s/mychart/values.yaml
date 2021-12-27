@@ -1,7 +1,0 @@
-replicaCount: 5
-
-image:
-  repository: 31974651/anyname:latest
-
-service:
-  type: LoadBalancer
