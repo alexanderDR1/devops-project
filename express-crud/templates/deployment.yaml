@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "express-crud.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "express-crud.selectorLabels" . | nindent 8 }}
+    spec:
+     containers:
+     - name: {.Values.name}
+       image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+       ports:
+       - containerPort: 5000
+ 
