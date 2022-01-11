@@ -71,7 +71,7 @@ def get_users():
      return jsonify(result),200
   
   except: 
-      return jsonify({'status': 'error', 'reason': 'not found any user'}), 500
+      return jsonify({'status': 'error', 'reason': 'not found any user'}), 404
 
 
 # Get Single user
@@ -82,7 +82,7 @@ def get_user(USER_ID):
     if usering != "None":
         return user_schema.jsonify(user), 200
     if usering == "None":
-        return jsonify({'status': 'error', 'reason': 'no such id'}) , 500
+        return jsonify({'status': 'error', 'reason': 'no such id'}) , 404
 
 
 
