@@ -1,0 +1,21 @@
+replicaCount: 5
+
+image:
+  repository: "31974651/work"
+  tag: "latest"
+
+service:
+  type: loadBalancer
+  port: 5000
+
+resources: {}
+   #limits:
+    #cpu: 0.3
+    #memory: 128Mi
+   #requests:
+   # cpu: 100m
+   # memory: 64Mi
+
+nodeSelector: {}
+tolerations: {}
+affinity: {}
